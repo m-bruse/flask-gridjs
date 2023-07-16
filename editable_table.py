@@ -14,6 +14,7 @@ class User(db.Model):
     address = db.Column(db.String(256))
     phone = db.Column(db.String(20))
     email = db.Column(db.String(120))
+    InitYEAR = db.Column(db.String(5))
 
     def to_dict(self):
         return {
@@ -22,8 +23,10 @@ class User(db.Model):
             'age': self.age,
             'address': self.address,
             'phone': self.phone,
-            'email': self.email
+            'email': self.email,
+            'InitYEAR': self.InitYEAR
         }
+
 
 with app.app_context():
     db.create_all()
@@ -43,7 +46,9 @@ def data():
     if search:
         query = query.filter(db.or_(
             User.name.like(f'%{search}%'),
-            User.email.like(f'%{search}%')
+            User.email.like(f'%{search}%'),
+            User.phone.like(f'%{search}%'),
+            User.InitYEAR.like(f'%{search}%')
         ))
     total = query.count()
 
@@ -54,7 +59,7 @@ def data():
         for s in sort.split(','):
             direction = s[0]
             name = s[1:]
-            if name not in ['name', 'age', 'email']:
+            if name not in ['name', 'age', 'email', 'phone','InitYear']:
                 name = 'name'
             col = getattr(User, name)
             if direction == '-':
@@ -82,7 +87,7 @@ def update():
     if 'id' not in data:
         abort(400)
     user = User.query.get(data['id'])
-    for field in ['name', 'age', 'address', 'phone', 'email']:
+    for field in ['name', 'age', 'address', 'phone', 'email','InitYear']:
         if field in data:
             setattr(user, field, data[field])
     db.session.commit()
